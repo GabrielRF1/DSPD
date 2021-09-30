@@ -10,7 +10,7 @@ lang = "pt"
 
 # Coletar dados online para dicionário
 class proxySpider(scrapy.Spider):
-    name = "pt_enDic"
+    name = "dict_bot"
     start_urls = [
         "https://en.wiktionary.org/wiki/Index:Portuguese/a",
     ]
@@ -27,12 +27,8 @@ class proxySpider(scrapy.Spider):
                 else:
                     urls.add("https://en.wiktionary.org"+link.attrib["href"])
                     #yield {"link": link.attrib["href"]}
-        i = 0
         for url in urls:
             yield scrapy.Request(url = url, callback = self.parse_word_page)
-            i = i+1
-            if i == 3:
-                break
 
     def parse_word_page(self, response):
         spans = response.css("span.mw-headline")
