@@ -9,7 +9,7 @@ language = "Portuguese"
 lang = "pt"
 
 # Coletar dados online para dicionário
-class proxySpider(scrapy.Spider):
+class dictSpider(scrapy.Spider):
     name = "dict_bot"
     start_urls = [
         "https://en.wiktionary.org/wiki/Index:Portuguese/a",
@@ -35,6 +35,16 @@ class proxySpider(scrapy.Spider):
         lang_found = False
         for span in spans:
             if lang_found:
+                alt_forms = []
+                if span.attrib["id"] == "Alternative_forms":
+                    alt_ul = response.xpath("//ul[preceding-sibling::*[./span[@id=\"Alternative_forms\"]]]")[0]
+                    alt_forms_li = alt_ul.css("li")
+                    for alt_form in alt_forms_li:
+                        if alt_form.attrib["lang"] != lang:
+                            break
+                        alt_forms.append(alt_form.css("* ::text").get())
+
+
                 if span.css("::text").get() in word_classes:
                     word_class = span.css("::text").get()
                     id = span.attrib["id"]
@@ -52,24 +62,39 @@ class proxySpider(scrapy.Spider):
                     try:
                         gender = word_p.css("abbr::text").get()
                     except:
-                        gender = ""
-                    word = ''.join(word_p.css("strong *::text").getall())
+                        gender = None
+                    word = "".join(word_p.css("strong.Latn.headword *::text").getall())
 
                     defs = def_ol.css("li")
                     count = 1
                     definition = ""
                     for defi in defs:
-                        text_list = defi.css('li *::text').getall()
+                        text_list = defi.css("li *::text").getall()
+                        try: # found example sentences or synonyms
+                            target_index = text_list.index("\n")
+                            try:
+                                target_index_s = text_list.index("Synonyms:")
+                                synonyms = text_list[target_index_s+2:] # synonyms
+                                synonyms = list(filter(lambda v: v != ", ", synonyms))
+                            except: # No Synonyms
+                                pass
+                            # Pegar os exemplos aqui tbm e depois:
+                            text_list = text_list[:target_index]
+                        except : # example sentences
+                            raise
+
                         if len(text_list) != 0:
-                            definition = definition + str(count) + '.' + ''.join(text_list) + "; "
+                            definition = definition + str(count) + "." + "".join(text_list) + "; "
                             count = count + 1
 
                     yield {
                         "word": word,
-                        "alt":"",
-                        "gender":gender,
-                        "defs":definition,
-                        "word_class":word_class
+                        "alt": alt_forms,
+                        "gender": gender,
+                        "defs": definition,
+                        "synonyms": synonyms,
+                        "word_class": word_class,
+                        "examples":
                     }
 
             if span.css("::text").get() == language:

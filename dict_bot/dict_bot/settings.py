@@ -49,13 +49,13 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'dict_bot.middlewares.EnZhdicSpiderMiddleware': 543,
+#    'dict_bot.middlewares.dict_bot_SpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'dict_bot.middlewares.EnZhdicDownloaderMiddleware': 543,
+#    'dict_bot.middlewares.dict_bot_DownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -67,7 +67,7 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'dict_bot.pipelines.EnZhdicPipeline': 300,
+#    'dict_bot.pipelines.dict_bot_Pipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -6,7 +6,7 @@
 import scrapy
 
 
-class EnZhdicItem(scrapy.Item):
+class dict_bot_Item(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
