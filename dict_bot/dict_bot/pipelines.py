@@ -8,6 +8,6 @@
 from itemadapter import ItemAdapter
 
 
-class dict_bot_Pipeline:
+class DictBotPipeline:
     def process_item(self, item, spider):
         return item
