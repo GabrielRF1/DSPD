@@ -6,8 +6,12 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
+lua_error = "Wiktionary:Lua memory errors"
 
 class DictBotPipeline:
     def process_item(self, item, spider):
+        if lua_error  in item['_word'] or lua_error in item['defs']:
+            raise DropItem('invalid word or definition found')
         return item

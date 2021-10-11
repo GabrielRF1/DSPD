@@ -1,7 +1,8 @@
 import scrapy
 import re
-from scrapy.loader import ItemLoader
 from dict_bot.items import DictBotItem
+from scrapy.loader import ItemLoader
+import languages
 
 
 def findSublist(sub_list, in_list):
@@ -37,103 +38,84 @@ class dictSpider(scrapy.Spider):
 
     name = "dict_bot"
     start_urls = [
-        "https://en.wiktionary.org/wiki/Index:Portuguese/e",
-        "https://en.wiktionary.org/wiki/Index:Portuguese/f",
-        "https://en.wiktionary.org/wiki/Index:Portuguese/g",
-        "https://en.wiktionary.org/wiki/Index:Portuguese/h",
+        # "https://en.wiktionary.org/wiki/Index:Portuguese/e",
+        # "https://en.wiktionary.org/wiki/Index:Portuguese/f",
+        # "https://en.wiktionary.org/wiki/Index:Portuguese/g",
+        # "https://en.wiktionary.org/wiki/Index:Portuguese/h",
+        "https://en.wiktionary.org/wiki/gente",
+        # "https://en.wiktionary.org/wiki/desarraigar",
+        # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
+        "https://en.wiktionary.org/wiki/%C3%A2nus",
+        # "https://en.wiktionary.org/wiki/faca",
+        # "https://en.wiktionary.org/wiki/a",
+        "https://en.wiktionary.org/wiki/gênio",
+        # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
+        "https://en.wiktionary.org/wiki/matar"
     ]
 
     def parse(self, response):
-        word_block = response.css("div.index").css("li")
-        urls = set()
-        for word in word_block:
-            links = word.css("a")
-            for link in links:
-                if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
-                    pass
-                else:
-                    urls.add("https://en.wiktionary.org"+link.attrib["href"])
-                    # yield {"link": link.attrib["href"]}
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parseWordPage)
+    #     word_block = response.css("div.index").css("li")
+    #     urls = set()
+    #     for word in word_block:
+    #         links = word.css("a")
+    #         for link in links:
+    #             if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
+    #                 pass
+    #             else:
+    #                 urls.add("https://en.wiktionary.org"+link.attrib["href"])
+    #                 # yield {"link": link.attrib["href"]}
+    #     for url in urls:
+    #         yield scrapy.Request(url=url, callback=self.parseWordPage)
 
-    def parseWordPage(self, response):
+    # def parseWordPage(self, response):
         spans = response.css("span.mw-headline")
         lang_found = False
         alt_forms = []
         for span in spans:
-            item_loader = ItemLoader(item=DictBotItem, selector=span)
-            if lang_found:
-                id = span.attrib["id"]
-
-                if "Alternative_forms" in id:  # Alternative form
-                    alt_forms = self.parseAlternative(response, id, item_loader)
-
-                if span.css("::text").get() in word_classes:  # Word class
-                    #word_class = span.css("::text").get()
-                    item_loader.add_css("word_class", '')
-
-                    word_r = self.parseWord(response, id, item_loader)  # main word
-                    if "Wiktionary:Lua memory errors" in word_r[1]:
-                        continue
-                    if word_r[0] == None:
-                        continue
-                    if word_r[0].css("strong").attrib["lang"] != lang:
-                        # not target language anymore
-                        break
-                    word = word_r[1]
-
-                    gender = self.parseGender(word_r[0], item_loader)  # Word gender, if any
-
-                    # definition, synonyms, examples
-                    dse = self.parseDefSynExp(response, id, item_loader)
-
-                    if dse[0] == None:
-                        continue
-
-                    # yield {
-                    #     "word": word,
-                    #     "alt": alt_forms,
-                    #     "gender": gender,
-                    #     "defs": dse[0],
-                    #     "synonyms": dse[1],
-                    #     "antonyms": dse[2],
-                    #     "word_class": word_class,
-                    #     "examples": dse[3]
-                    # }
-                    yield item_loader.load_item
             # some pages have definition for multiple languages
-            if span.css("::text").get() == language:
-                lang_found = True
+            headline = span.css("::text").get()
+            if headline in languages.languages.values():
+                if headline == language:
+                    lang_found = True
+                else:
+                    lang_found = False
+            if lang_found:
+                item_loader = ItemLoader(item=DictBotItem(), selector=span)
+                id = span.attrib["id"]
+                
+                if "Alternative_forms" in id:  # Alternative form
+                    alt_ul = response.xpath("//ul[preceding-sibling::*[./span[@id=\""
+                                            + id+"\"]]]")[0]
+                    alt_ul_item_loader = ItemLoader(item=item_loader.item, selector=alt_ul)
+                    alt_ul_item_loader.add_css("alt", "li")
+                    alt_forms = alt_ul_item_loader.get_output_value("alt")
 
-    # Parses the 'Alternative forms' section
-    def parseAlternative(self, response, id, item_loader):
-        alt_forms = []
-        alt_ul = response.xpath("//ul[preceding-sibling::*[./span[@id=\""
-                                + id+"\"]]]")[0]
-        alt_forms_li = alt_ul.css("li")
-        for alt_form in alt_forms_li:
-            alt_forms.append("".join(alt_form.css("*::text").getall()))
-        return alt_forms
-
-    # Parses the main word
-    def parseWord(self, response, id, item_loader):
-        try:
-            word_p = response.xpath("//p[preceding-sibling::*[./span[@id=\""
-                                    + id + "\"]]]")[0]
-            word = "".join(word_p.css("strong.Latn.headword *::text").getall())
-        except:
-            word_p = None
-            word = ""
-        return (word_p, word)
-
-    # Parse word gender, for languages that have it
-    def parseGender(self, word_p, item_loader):
-        try:
-            gender = word_p.css("abbr::text").get()
-        except:
-            gender = None
-        return gender
+                if headline in word_classes:  # Word class
+                    item_loader.add_css("word_class", "::text")
+                    item_loader.add_value("alt", alt_forms)
+                    try:
+                        word_p = response.xpath("//p[preceding-sibling::*[./span[@id=\""
+                                                + id + "\"]]]")[0]
+                    except:
+                        continue
+                    word_p_item_loader = ItemLoader(item=item_loader.item, selector=word_p)
+                    word_p_item_loader.add_css("_word", "p>strong:first-child *::text, b:first-child *::text") # Word
+                    word_p_item_loader.add_css("gender", "abbr") # Gender
+                    
+                    item_loader.add_value("_word", word_p_item_loader.get_output_value("_word"))    
+                    item_loader.add_value("gender", word_p_item_loader.get_output_value("gender"))            
+                    try:
+                        def_ol = response.xpath("//ol[preceding-sibling::*[./span[@id=\""
+                                                + id + "\"]]]")[0]
+                    except:
+                        continue
+                    
+                    def_ol_item_loader = ItemLoader(item=item_loader.item, selector=def_ol)
+                    def_ol_item_loader.add_css("defs", "ol>li") # definitions
+                    def_ol_item_loader.add_css("synonyms", "ol>li") # synonyms
+                    item_loader.add_value("defs", def_ol_item_loader.get_output_value("defs"))
+                    item_loader.add_value("synonyms", def_ol_item_loader.get_output_value("synonyms"))
+                    yield item_loader.load_item()  
 
     # Parses the definition, the examples and the synonyms.
     # They are kinda tied together in the HTML, that's why it's done like this
@@ -155,10 +137,6 @@ class dictSpider(scrapy.Spider):
         examples = []
         for defi in defs:
             text_list = self.removeSubDefinitions(defi)
-            if "Wiktionary:Lua memory errors" in text_list:
-                # sometimes wiktionary bugs, and we don't want the bugged part
-                # in our definition
-                return (None, [], [], [])
             try:  # example sentences, synonyms or antonyms
                 target_index = [i for i, item in enumerate(
                     text_list) if re.search('\\n', item)][0]
@@ -199,6 +177,7 @@ class dictSpider(scrapy.Spider):
                         except:  # neigher a synonym nor a antonym: this means it is a example
                             example = str(count) + ". " + "".join(non_def)
                             examples.append(example)
+
                 # lastly, we get the definition portion of the tag <li>
                 text_list = text_list[:target_index]
             except:  # only definitions
