@@ -12,6 +12,16 @@ lua_error = "Wiktionary:Lua memory errors"
 
 class DictBotPipeline:
     def process_item(self, item, spider):
-        if lua_error  in item['_word'] or lua_error in item['defs']:
+        if lua_error  in item["_word"] or lua_error in item["defs"]:
             raise DropItem('invalid word or definition found')
+
+        for defs in item["defs"]:
+            to_remove_from_extras = []
+            for extra in defs["extras"]:
+                for definitions in item["defs"]:
+                    if extra == definitions["_def"]:
+                        to_remove_from_extras.append(extra)
+            for to_remove in to_remove_from_extras:
+                defs["extras"].remove(to_remove)
+
         return item
