@@ -24,7 +24,7 @@ def build(value):
     antonyms.extend(search_for(ant, splited_values[1:]))
     extras.extend(search_for_ext(splited_values[1:]))
     
-    return {'_def': definition, '_synonyms': synonyms, 'antonyms': antonyms, 'extras': extras}
+    return {'_def': definition, '_synonyms': list(set(synonyms)), 'antonyms': list(set(antonyms)), 'extras': list(set(extras))}
 
 def search_for_ext(values):
     result = []
@@ -51,12 +51,11 @@ def search_for(regex, values):
     return result
 
 class DictBotItem(scrapy.Item):
-    # define the fields for your item here like:
     _word = scrapy.Field(input_processor = Identity(), output_processor = Join(''))
 
     alt = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = Identity())
     
-    defs = scrapy.Field()
+    defs = scrapy.Field(input_processor = Identity(), output_processor = Identity())
 
     gender = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = TakeFirst())
 
