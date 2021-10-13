@@ -10,36 +10,39 @@ links_noise = ["*", "►"]
 
 class dictSpider(scrapy.Spider):
     name = "dict_bot"
-    start_urls = [
-        # "https://en.wiktionary.org/wiki/Index:Portuguese/a",
-        # "https://en.wiktionary.org/wiki/Index:Portuguese/b",
-        # "https://en.wiktionary.org/wiki/Index:Portuguese/c",
-        # "https://en.wiktionary.org/wiki/Index:Portuguese/d",
-        #"https://en.wiktionary.org/wiki/gente",
-        "https://en.wiktionary.org/wiki/desarraigar",
-        # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
-        # "https://en.wiktionary.org/wiki/%C3%A2nus",
-        # "https://en.wiktionary.org/wiki/faca",
-        # "https://en.wiktionary.org/wiki/a",
-        # "https://en.wiktionary.org/wiki/gênio",
-        # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
-        # "https://en.wiktionary.org/wiki/matar"
-    ]
+    #
+
+    def start_requests(self):
+        start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index]
+        for url in start_urls:
+            yield scrapy.Request(url=url, callback = self.parse)
+
+    # start_urls = [
+    #     #"https://en.wiktionary.org/wiki/gente",
+    #     #"https://en.wiktionary.org/wiki/desarraigar",
+    #     # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
+    #     # "https://en.wiktionary.org/wiki/%C3%A2nus",
+    #     # "https://en.wiktionary.org/wiki/faca",
+    #     # "https://en.wiktionary.org/wiki/a",
+    #     # "https://en.wiktionary.org/wiki/gênio",
+    #     # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
+    #     # "https://en.wiktionary.org/wiki/matar"
+    # ]
 
     def parse(self, response):
-    #     word_block = response.css("div.index").css("li")
-    #     urls = set()
-    #     for word in word_block:
-    #         links = word.css("a")
-    #         for link in links:
-    #             if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
-    #                 pass
-    #             else:
-    #                 urls.add("https://en.wiktionary.org"+link.attrib["href"])
-    #     for url in urls:
-    #         yield scrapy.Request(url=url, callback=self.parseWordPage)
+        word_block = response.css("div.index").css("li")
+        urls = set()
+        for word in word_block:
+            links = word.css("a")
+            for link in links:
+                if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
+                    pass
+                else:
+                    urls.add("https://en.wiktionary.org"+link.attrib["href"])
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse_word_page)
 
-    # def parse_word_page(self, response):
+    def parse_word_page(self, response):
         spans = response.css("span.mw-headline")
         lang_found = False
         alt_forms = []
