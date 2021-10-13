@@ -10,6 +10,7 @@ from w3lib.html import remove_tags
 
 def clean_up(value):
     if value['_def'] is not None and value['_def'] != '':
+        value['_def'] = value['_def'].strip()
         return value
 
 def build(value):
@@ -23,8 +24,15 @@ def build(value):
     synonyms.extend(search_for(syn, splited_values[1:]))
     antonyms.extend(search_for(ant, splited_values[1:]))
     extras.extend(search_for_ext(splited_values[1:]))
-    
-    return {'_def': definition, '_synonyms': list(set(synonyms)), 'antonyms': list(set(antonyms)), 'extras': list(set(extras))}
+
+    a_def = {'_def': definition}
+    if len(synonyms) != 0:
+        a_def['_synonyms'] = list(set(synonyms))
+    if len(antonyms) != 0:
+        a_def['antonyms'] = list(set(antonyms))
+    if len(extras) != 0:
+        a_def['extras'] = list(set(extras))  
+    return a_def
 
 def search_for_ext(values):
     result = []
@@ -32,7 +40,7 @@ def search_for_ext(values):
         to_search = re.compile('^((?!Synonym(s?): |Antonym(s)).)*$')
         try:
             ext = re.search(to_search, value).group()
-            result.append(ext)
+            result.append(ext.strip())
         except:
             continue
     
@@ -50,16 +58,22 @@ def search_for(regex, values):
     
     return result
 
-class DictBotItem(scrapy.Item):
-    _word = scrapy.Field(input_processor = Identity(), output_processor = Join(''))
+class DictBotFinalItem(scrapy.Item):
+    word = scrapy.Field(output_processor = TakeFirst())
 
-    alt = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = Identity())
+    alt = scrapy.Field()
     
-    defs = scrapy.Field(input_processor = Identity(), output_processor = Identity())
+    defs = scrapy.Field()
 
-    gender = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = TakeFirst())
+    gender = scrapy.Field(output_processor = TakeFirst())
 
-    word_class = scrapy.Field(input_processor = Identity(), output_processor = TakeFirst())
+    word_class = scrapy.Field(output_processor = TakeFirst())
 
 class DictBotIntermediateItem(scrapy.Item):
+    word = scrapy.Field(input_processor = Identity(), output_processor = Join(''))
+
+    alt = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = Identity())
+
     defs = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = MapCompose(build, clean_up))
+
+    gender = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = TakeFirst())
