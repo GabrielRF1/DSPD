@@ -1,5 +1,4 @@
 import scrapy
-import re
 from dict_bot.items import DictBotFinalItem, DictBotIntermediateItem
 from scrapy.loader import ItemLoader
 import languages
