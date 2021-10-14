@@ -1,5 +1,51 @@
 # coding: utf8
-# extracted from https://en.wiktionary.org/wiki/Index:All_languages 
+# 400+ languages
+# extracted from https://en.wiktionary.org/wiki/Index:All_languages <- Page no longer exists
+# , from https://meta.wikimedia.org/wiki/Wiktionary#List_of_Wiktionaries
+# and from https://en.wikipedia.org/wiki/List_of_official_languages
+# and some were added by hand
 
-languages = ['English', 'Abkhaz', 'Adyghe', 'Afrikaans', 'Akan', 'Albanian', 'American Sign Language', 'Amharic', 'Arabic', 'Aragonese', 'Aramaic', 'Armenian', 'Assamese', 'Aymara', 'Azerbaijani', 'Balinese', 'Basque', 'Betawi', 'Bosnian', 'Breton', 'Bulgarian', 'Cantonese', 'Catalan', 'Cherokee', 'Chickasaw', 'Chinese', 'Coptic', 'Cornish', 'Corsican', 'Crimean Tatar', 'Croatian', 'Czech', 'Danish', 'Dutch', 'Dawro', 'Esperanto', 'Estonian', 'Ewe', 'Fiji Hindi', 'Filipino', 'Finnish', 'French', 'Galician', 'Georgian', 'German', 'Greek, Modern', 'Ancient Greek', 'Greenlandic', 'Haitian Creole', 'Hawaiian', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Inuktitut', 'Interlingua', 'Irish', 'Italian', 'Japanese', 'Javanese', 'Kabardian', 'Kalasha', 'Kannada', 'Kashubian', 'Khmer', 'Kinyarwanda', 'Korean', 'Kurdish/Kurdî', 'Ladin', 'Latgalian', 'Latin', 'Lingala',
-             'Livonian', 'Lojban', 'Lower Sorbian', 'Low German', 'Macedonian', 'Malay', 'Malayalam', 'Mandarin', 'Manx', 'Maori', 'Mauritian Creole', 'Middle English', 'Middle Low German', 'Min Nan', 'Mongolian', 'Norwegian', 'Old Armenian', 'Old English', 'Old French', 'Old Javanese', 'Old Norse', 'Old Prussian', 'Oriya', 'Pangasinan', 'Papiamentu', 'Pashto', 'Persian', 'Pitjantjatjara', 'Polish', 'Portuguese', 'Proto-Slavic', 'Punjabi', 'Quenya', 'Rajasthani', 'Rapa Nui', 'Romanian', 'Russian', 'Sanskrit', 'Scots', 'Scottish Gaelic', 'Semai', 'Serbian', 'Serbo-Croatian', 'Slovak', 'Slovene', 'Spanish', 'Sinhalese', 'Swahili', 'Swedish', 'Tagalog', 'Tajik', 'Tamil', 'Tarantino', 'Telugu', 'Thai', 'Tok Pisin', 'Turkish', 'Twi', 'Ukrainian', 'Upper Sorbian', 'Urdu', 'Uyghur', 'Uzbek', 'Venetian', 'Vietnamese', 'Vilamovian', 'Volapük', 'Võro', 'Welsh', 'Xhosa', 'Yiddish', 'Zazaki', 'Zulu']
+languages = ['Oriya', 'West Frisian', 'Kirundi', 'Mossi', 'Ingush', 'Altay', 'Frisian (West)', 'Kinyarwanda', 
+'Rutul', 'Ilocano', 'Papiamentu', 'Estonian', 'Middle English', 'Lao', 'Min Nan', 'Tsonga', 'Gbe', 
+'Moldovan', 'Fula', 'Romansch', 'Chinese', 'Latvian', 'Oniyan', 'Bambara', 'Avar', 'Dioula', 'Tigrinya', 'Nias', 
+'Meitei', 'Guaraní', 'Yiddish', 'Ewe', 'Adyghe', 'Khakas', 'Croatian', 'Yoruba', 'Limburgish', 'Tebu', 'Tatar', 
+'Samoan', 'Russian', 'Tahitian', 'Portuguese', 'Ancient Greek', 'Dargwa', 'Sotho', 'Quenya', 'Kurdish', 'Moksha', 
+'Kalaallisut', 'Old English', 'Sango', 'Lak', 'Ossetian', 'Tswana', 'Filipino', 'Vilamovian', 'Nogai', 'Montenegrin', 
+'Zimbabwean sign language', 'Sundanese', 'Tabasaran', 'Balinese', 'Dangme', 'Even', 'Lezgian', 'Czech', 'Hindi', 
+'Hausa', 'Wolof', 'Volapük', 'Balanta', 'Bhojpuri', 'Cree', 'Mandarin', 'Hebrew', 'Korean', 'Kurdish/Kurdî', 
+'Chickasaw', 'Sesotho', 'Greenlandic', 'Greek', 'Asante Twi', 'Karachay', 'Esperanto', 'Bulgarian', 'Tuvaluan', 
+'Erzya', 'Crimean Tatar', 'Mbelime', 'Breton', 'Urdu', 'Papiamento', 'Inuktitut', 'Kashmiri', 'Kashubian', 'Manx', 
+'Rapa Nui', 'Betawi', 'Slovak', 'Pali', 'Marshallese', 'Scottish Gaelic', 'Fon-Gbe', 'Tammari', 'Twi', 'Asturian', 
+'Waci-Gbe', 'Dzongkha', 'Georgian', 'Kazakh', 'Abaza', 'Soninke', 'Chukchi', 'Bedik', 'Interlingue', 'Kanuri', 
+'Finnish', 'Kannada', 'Aghul', 'Cebuano', 'Jola', 'Palauan', 'Inuinnaqtun', 'Aragonese', 'Akan', 'Low Saxon', 
+'Aromanian', 'Nauruan', 'Telugu', 'Interlingua', 'Maranao', 'Kalasha', 'Surigaonon', 'Gourmanché', 'Amharic', 
+'Old French', 'Greek, Modern', 'Bashkir', 'Basque', 'Hiri Motu', 'Boko', 'Kabardian', 'Sardinian', 'Rusyn', 
+'Aramaic', 'Old Javanese', 'Bokmål', 'Irish', 'Taiwanese Hokkien', 'Hokkien', 'Abkhaz', 'Uzbek', 'Rade', 'French', 
+'Walloon', 'Biali', 'Occitan', 'Akuapem Twi', 'Kyrgyz', 'Mauritian Creole', 'Venda', 'Burmese', 'Pashto', 'Berber', 
+'Somali', 'Old Armenian', 'Igbo', 'Latin', 'Abkhazian', 'Serbo-Croatian', 'Dogon', 'Seychellois Creole', 'Afrikaans', 
+'Uyghur', 'Kumyk', 'Odia', 'Bomu', 'Central Bicolano', 'Khoisan', 'Nateni', 'Corsican', 'Norwegian (Nynorsk)', 
+'Karelian', 'Gonja', 'Chechen', 'Luxembourgish', 'Anglo-Saxon', 'Serbian', 'Old Norse', 'Malay', 'Bassari', 
+'Comorian', 'Shona', 'Sambal', 'Persian', 'Yom', 'Chichewa', 'Lojban', 'Latgalian', 'Zazaki', 'Cherokee', 'Kalmyk', 
+'Armenian', 'German', 'Dagbani', 'Assamese', 'Ivatan', 'Shawiya', 'Saraiki', 'Pitjantjatjara', 'Coptic', 
+'Northern Sotho', 'Waray', 'Yakan', 'Ndau', 'Tsakhur', 'Mayan', 'Gagauz', 'Maori', 'Hawaiian', 'Norwegian', 
+'Cornish', 'Zarma', 'Nzema', 'Arabic', 'Guarani', 'Yukaghir', 'Chirbawe', 'Evenki', 'Lingala', 'Upper Sorbian', 
+'Dawro', 'Thai', 'Chamorro', 'Dagaare', 'Albanian', 'Faroese', 'Sindhi', 'Japanese', 'Belarusian', 'Tok Pisin', 
+'New Zealand Sign Language', 'Tongan', 'Lukpa', 'Turkish', 'Inupiak', 'Gujarati', 'American Sign Language', 
+'Old Prussian', 'Tłįchǫ', 'Bikol', 'Nepali', 'Manding', 'Bosnian', 'Samoa', 'Afar', 'Dendi', 'Taiwan Sign Language', 
+'Chinese, Mandarin', 'Cherkess', 'Nenets', 'Sakizaya', 'Ukrainian', 'Serer', 'Kalanga', 'Proto-Slavic', 'Danish', 
+'Italian', 'Friulian', 'English', 'Kapampangan', 'Romanian', 'Semai', 'Mandinka', 'Balkar', 'Mari', 'Syenara', 
+'Kpelle', 'Zhuang', 'Azerbaijani', 'Manx Gaelic', 'Welsh', 'Cantonese Chinese', 'Western Punjabi', 'Maguindanao', 
+'Aymara', 'Middle Low German', 'Cantonese', 'Bozo', 'Safen', 'Māori', 'Ga', 'Swahili', 'Zulu', 'Sicilian', 'Komi', 
+'Inuvialuktun', '粵語', 'Fante', 'Divehi', 'Macedonian', 'Aja-Gbe', 'Xwela-Gbe', 'Malagasy', 'Indonesian', 'Kissi', 
+'Chavacano', 'Chipewyan', 'Hiligaynon', 'North and South Slavey', 'Lower Sorbian', 'Tetum', 'Toma', 'Fiji Hindi', 
+'Tonga', 'Turkmen', 'Kabye', 'Azeri', 'Anii', 'Rajasthani', 'Khmer', 'Susu', 'Gen-Gbe', 'Tajik', 'Gàidhlig', 
+'Punjabi', 'Quechua', 'Khanty', 'Goan Konkani', 'Noon', 'Dhivehi', 'Songhay', 'Shan', 'Formosan', 'Swedish', 
+'Sinhala', 'Ladin', 'Foodo', 'Waama', 'Bariba', 'Icelandic', 'Lithuanian', 'Dolgan', 'Mansi', "Gwich'in", 'Romani', 
+'Galician', 'Bislama', 'Tamil', 'Livonian', 'Náhuatl', 'Scots', 'Malinke', 'Sena', 'Dutch', 'Swati', 'Ibanag', 
+'Hakka', 'Haitian Creole', 'Oromo', 'Vietnamese', 'Buryat', 'Veps', 'Tagalog', 'Romansh', 'Fijian', 'Komi-Permyak', 
+'Wamey', 'Ewe-Gbe', 'Maltese', 'Polish', 'Nambya', 'Kasem', 'Spanish', 'Pangasinan', 'Javanese', 'Kinaray-a', 
+'Selkup', 'Kirghiz', 'Xhosa', 'Buduma', 'Venetian', 'Rukai', 'Slovene', 'Mongolian', 'Tasawaq', 'Malayalam', 
+'Ossetic', 'Sanskrit', 'Tat', 'Nahuatl', 'Nynorsk', 'Tibetan', 'Slovenian', 'Mandjak', 'Marathi', 'Yobe', 
+'Sarikoli', 'Bengali', 'Catalan', 'Udmurt', 'Mon', 'Tamasheq', 'Mamara', 'Korean Sign Language', 'Simple English', 
+'Low German', 'Norwegian (Bokmål)', 'Tuvan', 'Chuvash', 'Ido', 'Hungarian', 'Sakha', 'Tausug', 'Sinhalese', 
+'Aklanon', 'Sami', 'Minangkabau', 'Tarantino', 'Mankanya', 'Hassaniya', 'Võro', 'Dari']

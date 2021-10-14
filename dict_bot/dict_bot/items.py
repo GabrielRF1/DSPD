@@ -11,6 +11,8 @@ from w3lib.html import remove_tags
 def clean_up(value):
     if value['_def'] is not None and value['_def'] != '':
         value['_def'] = value['_def'].strip()
+        if value['_def'][0] == '(' and value['_def'].find(')') == len(value['_def'])-1:
+            return None
         return value
 
 def build(value):
@@ -37,10 +39,14 @@ def build(value):
 def search_for_ext(values):
     result = []
     for value in values:
-        to_search = re.compile('^((?!Synonym(s?): |Antonym(s)).)*$')
+        to_search = re.compile('^((?!Synonym(s?): |Antonym(s?): ).)*$')
         try:
             ext = re.search(to_search, value).group()
-            result.append(ext.strip())
+            ext = ext.strip()
+            if ext[0] == '(' and ext.find(')') == len(ext)-1:
+                pass
+            else:
+                result.append(ext)
         except:
             continue
     
@@ -76,4 +82,4 @@ class DictBotIntermediateItem(scrapy.Item):
 
     defs = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = MapCompose(build, clean_up))
 
-    gender = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = TakeFirst())
+    gender = scrapy.Field(input_processor = MapCompose(remove_tags), output_processor = Join(' '))

@@ -10,7 +10,7 @@ links_noise = ["*", "►"]
 
 class dictSpider(scrapy.Spider):
     name = "dict_bot"
-    #
+
 
     def start_requests(self):
         start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index]
@@ -18,15 +18,19 @@ class dictSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback = self.parse)
 
     # start_urls = [
-    #     #"https://en.wiktionary.org/wiki/gente",
-    #     #"https://en.wiktionary.org/wiki/desarraigar",
+    #     # "https://en.wiktionary.org/wiki/gente",
+    #     # "https://en.wiktionary.org/wiki/desarraigar",
     #     # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
     #     # "https://en.wiktionary.org/wiki/%C3%A2nus",
     #     # "https://en.wiktionary.org/wiki/faca",
     #     # "https://en.wiktionary.org/wiki/a",
     #     # "https://en.wiktionary.org/wiki/gênio",
     #     # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
-    #     # "https://en.wiktionary.org/wiki/matar"
+    #     # "https://en.wiktionary.org/wiki/matar",
+    #     # "https://en.wiktionary.org/wiki/cobre",
+    #     # "https://en.wiktionary.org/wiki/besta",
+    #     # "https://en.wiktionary.org/wiki/cesta",
+    #     # "https://en.wiktionary.org/wiki/dar",
     # ]
 
     def parse(self, response):

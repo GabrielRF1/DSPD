@@ -22,7 +22,7 @@ class DictBotPipeline:
             if lua_error in defs["_def"] or add_translation_error in defs["_def"]:
                 raise DropItem('invalid definition found')
         # ------------------ ------------------ ------------------
-        # ------ removing possible non-extras from extras --------
+        # ------ removing possible non-extras or duplicates from extras --------
         for defs in item["defs"]:
             to_remove_from_extras = []
             try:
@@ -30,8 +30,15 @@ class DictBotPipeline:
                     for definitions in item["defs"]:
                         if extra == definitions["_def"]:
                             to_remove_from_extras.append(extra)
+                        try:
+                            if extra in definitions["extras"] and defs != definitions:
+                                to_remove_from_extras.append(extra)
+                        except:
+                            pass
                 for to_remove in to_remove_from_extras:
                     defs["extras"].remove(to_remove)
+                if len(defs["extras"]) == 0:
+                    defs.pop("extras")
             except: # no extras in this definition
                 continue
         # ------------------ ------------------ ------------------
@@ -49,104 +56,92 @@ class DictBotSQLitePipeline:
         self.create_db()
     
     def create_db(self):
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS Extension(
+        extension TEXT NOT NULL PRIMARY KEY
+        )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Word(
-        word_id TEXT PRIMARY KEY,
+        word_id INTEGER PRIMARY KEY,
         word TEXT NOT NULL,
         word_class TEXT NOT NULL,
-        gender VARCHAR(1)
-        )""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS AlternativeForm(
-        alt TEXT NOT NULL PRIMARY KEY
-        )""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Word_Alt(
-        word_id TEXT NOT NULL,
-        alt TEXT NOT NULL,
-        FOREIGN KEY(word_id) REFERENCES Word(word_id),
-        FOREIGN KEY(alt) REFERENCES AlternativeForm(alt),
-        PRIMARY KEY(word_id, alt)
+        gender text
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Definition(
-        def_id TEXT PRIMARY KEY,
+        def_id INTEGER PRIMARY KEY,
         def TEXT NOT NULL,
-        word_id TEXT NOT NULL,
+        word_id INTEGER NOT NULL,
         FOREIGN KEY(word_id) REFERENCES Word(word_id)
         )""")
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS Alternative(
+        word_id INTEGER NOT NULL,
+        extension TEXT NOT NULL,
+        FOREIGN KEY(word_id) REFERENCES Word(word_id),
+        FOREIGN KEY(extension) REFERENCES Extension(extension),
+        PRIMARY KEY(word_id, extension)
+        )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Synonym(
-        syn TEXT NOT NULL PRIMARY KEY
+        def_id INTEGER NOT NULL,
+        extension TEXT NOT NULL,
+        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
+        FOREIGN KEY(extension) REFERENCES Extension(extension),
+        PRIMARY KEY(def_id, extension)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Antonym(
-        ant TEXT NOT NULL PRIMARY KEY
+        def_id INTEGER NOT NULL,
+        extension TEXT NOT NULL,
+        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
+        FOREIGN KEY(extension) REFERENCES Extension(extension),
+        PRIMARY KEY(def_id, extension)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Extra(
-        ext TEXT NOT NULL PRIMARY KEY
-        )""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Def_Syn(
-        def_id TEXT NOT NULL,
-        syn TEXT NOT NULL,
+        def_id INTEGER NOT NULL,
+        extension TEXT NOT NULL,
         FOREIGN KEY(def_id) REFERENCES Definition(def_id),
-        FOREIGN KEY(syn) REFERENCES Synonym(syn),
-        PRIMARY KEY(def_id, syn)
-        )""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Def_Ant(
-        def_id TEXT NOT NULL,
-        ant TEXT NOT NULL,
-        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
-        FOREIGN KEY(ant) REFERENCES Antonym(ant),
-        PRIMARY KEY(def_id, ant)
-        )""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Def_Ext(
-        def_id TEXT NOT NULL,
-        ext TEXT NOT NULL,
-        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
-        FOREIGN KEY(ext) REFERENCES Extra(ext),
-        PRIMARY KEY(def_id, ext)
+        FOREIGN KEY(extension) REFERENCES Extension(extension),
+        PRIMARY KEY(def_id, extension)
         )""")
         
 
     def process_item(self, item, spider):
-        word_id = item["word"]+"_"+item["word_class"]
         try:
             gender = item["gender"]
         except:
             gender = ""
-        self.cur.execute("""INSERT OR IGNORE INTO Word VALUES (?, ?, ?, ?)""",
-            (word_id, item["word"], item["word_class"], gender))
-
+        self.cur.execute("""INSERT OR IGNORE INTO Word(word, word_class, gender) VALUES (?, ?, ?)""",
+            (item["word"], item["word_class"], gender))
+        word_id = self.cur.lastrowid
         try:
             for alt in item["alt"]:
-                self.cur.execute("""INSERT OR IGNORE INTO AlternativeForm VALUES (?)""",
+                self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
                     (alt,))
-                self.cur.execute("""INSERT OR IGNORE INTO Word_Alt VALUES (?, ?)""",
+                self.cur.execute("""INSERT OR IGNORE INTO Alternative VALUES (?, ?)""",
                     (word_id, alt))
         except:
             pass
-        count = 0
         for defs in item["defs"]:
-            count = count+1
-            def_id = str(count) + word_id
-            self.cur.execute("""INSERT OR IGNORE INTO Definition VALUES (?, ?, ?)""",
-            (def_id, defs["_def"], word_id))
+            self.cur.execute("""INSERT OR IGNORE INTO Definition(def, word_id) VALUES (?, ?)""",
+            (defs["_def"], word_id))
+            def_id = self.cur.lastrowid
             try:
                 for syn in defs["_synonyms"]:
-                    self.cur.execute("""INSERT OR IGNORE INTO Synonym VALUES (?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
                         (syn,))
-                    self.cur.execute("""INSERT OR IGNORE INTO Def_Syn VALUES (?, ?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Synonym VALUES (?, ?)""",
                         (def_id, syn))
             except:
                 pass
             try:
                 for ant in defs["antonyms"]:
-                    self.cur.execute("""INSERT OR IGNORE INTO Antonym VALUES (?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
                         (ant,))
-                    self.cur.execute("""INSERT OR IGNORE INTO Def_Ant VALUES (?, ?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Antonym VALUES (?, ?)""",
                         (def_id, ant))
             except:
                 pass
             try:
                 for ext in defs["extras"]:
-                    self.cur.execute("""INSERT OR IGNORE INTO Extra VALUES (?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
                         (ext,))
-                    self.cur.execute("""INSERT OR IGNORE INTO Def_Ext VALUES (?, ?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Extra VALUES (?, ?)""",
                         (def_id, ext))
             except:
                 pass
