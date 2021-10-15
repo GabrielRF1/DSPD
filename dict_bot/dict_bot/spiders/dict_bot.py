@@ -4,7 +4,6 @@ from scrapy.loader import ItemLoader
 import languages
 import languages_settings
 
-syn_ant_noise = [", ", " ", ""]
 links_noise = ["*", "►"]
 
 class dictSpider(scrapy.Spider):
