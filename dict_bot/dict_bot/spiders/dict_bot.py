@@ -12,25 +12,26 @@ class dictSpider(scrapy.Spider):
 
 
     def start_requests(self):
-        start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index]
+        start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index][::-1]
         for url in start_urls:
             yield scrapy.Request(url=url, callback = self.parse)
 
-    # start_urls = [
-    #     # "https://en.wiktionary.org/wiki/gente",
-    #     # "https://en.wiktionary.org/wiki/desarraigar",
-    #     # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
-    #     # "https://en.wiktionary.org/wiki/%C3%A2nus",
-    #     # "https://en.wiktionary.org/wiki/faca",
-    #     # "https://en.wiktionary.org/wiki/a",
-    #     # "https://en.wiktionary.org/wiki/gênio",
-    #     # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
-    #     # "https://en.wiktionary.org/wiki/matar",
-    #     # "https://en.wiktionary.org/wiki/cobre",
-    #     # "https://en.wiktionary.org/wiki/besta",
-    #     # "https://en.wiktionary.org/wiki/cesta",
-    #     # "https://en.wiktionary.org/wiki/dar",
-    # ]
+    start_urls = [
+        # "https://en.wiktionary.org/wiki/gente",
+        # "https://en.wiktionary.org/wiki/desarraigar",
+        # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
+        # "https://en.wiktionary.org/wiki/%C3%A2nus",
+        # "https://en.wiktionary.org/wiki/faca",
+        # "https://en.wiktionary.org/wiki/a",
+        # "https://en.wiktionary.org/wiki/gênio",
+        # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
+        # "https://en.wiktionary.org/wiki/matar",
+        # "https://en.wiktionary.org/wiki/cobre",
+        # "https://en.wiktionary.org/wiki/besta",
+        # "https://en.wiktionary.org/wiki/cesta",
+        # "https://en.wiktionary.org/wiki/dar",
+        # "https://en.wiktionary.org/wiki/altru%C3%ADsta"
+    ]
 
     def parse(self, response):
         word_block = response.css("div.index").css("li")
@@ -75,7 +76,7 @@ class dictSpider(scrapy.Spider):
                         continue
                     word_p_item_loader = ItemLoader(item=DictBotIntermediateItem(), selector=word_p)
                     word_p_item_loader.add_css("word", "p>strong:first-child *::text, b:first-child *::text") # Word
-                    word_p_item_loader.add_css("gender", "abbr") # Gender
+                    word_p_item_loader.add_css("gender", "span.gender") # Gender
                              
                     try:
                         def_ol = response.xpath("//ol[preceding-sibling::*[./span[@id=\""
