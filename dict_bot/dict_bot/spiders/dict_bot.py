@@ -3,6 +3,8 @@ from dict_bot.items import DictBotFinalItem, DictBotIntermediateItem
 from scrapy.loader import ItemLoader
 import languages
 import languages_settings
+from urllib.parse import urljoin
+import re
 
 links_noise = ["*", "►"]
 
@@ -41,7 +43,14 @@ class dictSpider(scrapy.Spider):
                 if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
                     pass
                 else:
-                    urls.add("https://en.wiktionary.org"+link.attrib["href"])
+                    try:
+                        url_lang_regex = re.compile("(\w\w)\.wiktionary")
+                        url_lang =  re.findall(url_lang_regex, link.attrib["href"])[0]
+                        if url_lang != 'en':
+                            continue
+                    except:
+                        pass
+                    urls.add(urljoin("https://en.wiktionary.org", link.attrib["href"]))
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_word_page)
 
