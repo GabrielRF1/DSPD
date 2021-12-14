@@ -70,7 +70,7 @@ DEFAULT_REQUEST_HEADERS = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'dict_bot.pipelines.DictBotPipeline': 300,
-   #'dict_bot.pipelines.DictBotSQLitePipeline': 301,
+   'dict_bot.pipelines.DictBotSQLitePipeline': 301,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

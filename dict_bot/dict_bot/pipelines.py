@@ -56,9 +56,6 @@ class DictBotSQLitePipeline:
         self.create_db()
     
     def create_db(self):
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Extension(
-        extension TEXT NOT NULL PRIMARY KEY
-        )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Word(
         word_id INTEGER PRIMARY KEY,
         word TEXT NOT NULL,
@@ -72,32 +69,28 @@ class DictBotSQLitePipeline:
         FOREIGN KEY(word_id) REFERENCES Word(word_id)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Alternative(
+        alt_id INTEGER PRIMARY KEY,    
         word_id INTEGER NOT NULL,
-        extension TEXT NOT NULL,
-        FOREIGN KEY(word_id) REFERENCES Word(word_id),
-        FOREIGN KEY(extension) REFERENCES Extension(extension),
-        PRIMARY KEY(word_id, extension)
+        alt TEXT NOT NULL,
+        FOREIGN KEY(word_id) REFERENCES Word(word_id)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Synonym(
+        syn_id INTEGER PRIMARY KEY,
         def_id INTEGER NOT NULL,
-        extension TEXT NOT NULL,
-        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
-        FOREIGN KEY(extension) REFERENCES Extension(extension),
-        PRIMARY KEY(def_id, extension)
+        syn TEXT NOT NULL,
+        FOREIGN KEY(def_id) REFERENCES Definition(def_id)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Antonym(
+        ant_id INTEGER PRIMARY KEY,
         def_id INTEGER NOT NULL,
         extension TEXT NOT NULL,
-        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
-        FOREIGN KEY(extension) REFERENCES Extension(extension),
-        PRIMARY KEY(def_id, extension)
+        FOREIGN KEY(def_id) REFERENCES Definition(def_id)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Extra(
+        extra_id INTEGER PRIMARY KEY,
         def_id INTEGER NOT NULL,
-        extension TEXT NOT NULL,
-        FOREIGN KEY(def_id) REFERENCES Definition(def_id),
-        FOREIGN KEY(extension) REFERENCES Extension(extension),
-        PRIMARY KEY(def_id, extension)
+        extra TEXT NOT NULL,
+        FOREIGN KEY(def_id) REFERENCES Definition(def_id)
         )""")
         
 
@@ -105,15 +98,13 @@ class DictBotSQLitePipeline:
         try:
             gender = item["gender"]
         except:
-            gender = ""
+            gender = None
         self.cur.execute("""INSERT OR IGNORE INTO Word(word, word_class, gender) VALUES (?, ?, ?)""",
             (item["word"], item["word_class"], gender))
         word_id = self.cur.lastrowid
         try:
             for alt in item["alt"]:
-                self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
-                    (alt,))
-                self.cur.execute("""INSERT OR IGNORE INTO Alternative VALUES (?, ?)""",
+                self.cur.execute("""INSERT OR IGNORE INTO Alternative(word_id, alt) VALUES (?, ?)""",
                     (word_id, alt))
         except:
             pass
@@ -123,25 +114,19 @@ class DictBotSQLitePipeline:
             def_id = self.cur.lastrowid
             try:
                 for syn in defs["_synonyms"]:
-                    self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
-                        (syn,))
-                    self.cur.execute("""INSERT OR IGNORE INTO Synonym VALUES (?, ?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Synonym(def_id, syn) VALUES (?, ?)""",
                         (def_id, syn))
             except:
                 pass
             try:
                 for ant in defs["antonyms"]:
-                    self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
-                        (ant,))
-                    self.cur.execute("""INSERT OR IGNORE INTO Antonym VALUES (?, ?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Antonym(def_id, ant) VALUES (?, ?)""",
                         (def_id, ant))
             except:
                 pass
             try:
                 for ext in defs["extras"]:
-                    self.cur.execute("""INSERT OR IGNORE INTO Extension VALUES (?)""",
-                        (ext,))
-                    self.cur.execute("""INSERT OR IGNORE INTO Extra VALUES (?, ?)""",
+                    self.cur.execute("""INSERT OR IGNORE INTO Extra(def_id, extra) VALUES (?, ?)""",
                         (def_id, ext))
             except:
                 pass
