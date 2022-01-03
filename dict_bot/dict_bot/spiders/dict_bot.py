@@ -1,58 +1,75 @@
 import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 from dict_bot.items import DictBotFinalItem, DictBotIntermediateItem
 from scrapy.loader import ItemLoader
 import languages
 import languages_settings
 from urllib.parse import urljoin
-import re
+#import re
 
-links_noise = ["*", "►"]
+#links_noise = ["*", "►"]
 
-class dictSpider(scrapy.Spider):
+class dictSpider(CrawlSpider):
     name = "dict_bot"
+    allowed_domains = ["en.wiktionary.org"]
+    start_urls = ['https://en.wiktionary.org/wiki/Category:Portuguese_language']
 
+    # rules = (
+    #     Rule(link_extractor=LinkExtractor(
+    #         restrict_css=[
+    #             'div.CategoryTreeItem',
+    #             'div.mw-parser-output > ul a[title^=\'Category:\']'],
+    #         deny=r'Category:Terms_derived_from_(\w*)$')),
+    #     Rule(link_extractor=LinkExtractor(
+    #         restrict_css=[
+    #             'div.mw-category-group',
+    #             'td#oldest-pages',
+    #             'td#recent-additions',
+    #             '*:lang(pt)']), callback='parse_word_page', follow=True),
+    # )
 
-    def start_requests(self):
-        start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index][::-1]
-        for url in start_urls:
-            yield scrapy.Request(url=url, callback = self.parse)
+    def __init__(self, *a, **kw):
+        super(dictSpider, self).__init__(*a, **kw)
+        self.rules = (
+        Rule(link_extractor=LinkExtractor(
+            restrict_css=[
+                'div.CategoryTreeItem',
+                'div.mw-parser-output > ul a[title^=\'Category:\']'],
+            deny=r'Category:Terms_derived_from_(\w*)$')),
+        Rule(link_extractor=LinkExtractor(
+            restrict_css=[
+                'div.mw-category-group',
+                'td#oldest-pages',
+                'td#recent-additions',
+                '*:lang('+self.lang+')']), callback='parse_word_page', follow=True),
+        )
+        super(dictSpider, self)._compile_rules()
 
-    # start_urls = [
-    #     # "https://en.wiktionary.org/wiki/gente",
-    #     # "https://en.wiktionary.org/wiki/desarraigar",
-    #     # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
-    #     # "https://en.wiktionary.org/wiki/%C3%A2nus",
-    #     # "https://en.wiktionary.org/wiki/faca",
-    #     # "https://en.wiktionary.org/wiki/a",
-    #     # "https://en.wiktionary.org/wiki/gênio",
-    #     # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
-    #     # "https://en.wiktionary.org/wiki/matar",
-    #     # "https://en.wiktionary.org/wiki/cobre",
-    #     # "https://en.wiktionary.org/wiki/besta",
-    #     # "https://en.wiktionary.org/wiki/cesta",
-    #     # "https://en.wiktionary.org/wiki/dar",
-    #     # "https://en.wiktionary.org/wiki/altru%C3%ADsta"
-    # ]
+    # def start_requests(self):
+    #     start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index][::-1]
+    #     for url in start_urls:
+    #         yield scrapy.Request(url=url, callback = self.parse)
 
-    def parse(self, response):
-        word_block = response.css("div.index").css("li")
-        urls = set()
-        for word in word_block:
-            links = word.css("a")
-            for link in links:
-                if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
-                    pass
-                else:
-                    try:
-                        url_lang_regex = re.compile("(\w\w)\.wiktionary")
-                        url_lang =  re.findall(url_lang_regex, link.attrib["href"])[0]
-                        if url_lang != 'en':
-                            continue
-                    except:
-                        pass
-                    urls.add(urljoin("https://en.wiktionary.org", link.attrib["href"]))
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_word_page)
+    # def parse(self, response):
+    #     word_block = response.css("div.index").css("li")
+    #     urls = set()
+    #     for word in word_block:
+    #         links = word.css("a")
+    #         for link in links:
+    #             if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
+    #                 pass
+    #             else:
+    #                 try:
+    #                     url_lang_regex = re.compile("(\w\w)\.wiktionary")
+    #                     url_lang =  re.findall(url_lang_regex, link.attrib["href"])[0]
+    #                     if url_lang != 'en':
+    #                         continue
+    #                 except:
+    #                     pass
+    #                 urls.add(urljoin("https://en.wiktionary.org", link.attrib["href"]))
+    #     for url in urls:
+    #         yield scrapy.Request(url=url, callback=self.parse_word_page)
 
     def parse_word_page(self, response):
         spans = response.css("span.mw-headline")
