@@ -24,7 +24,7 @@ class dictSpider(CrawlSpider):
                 'div.mw-category-group',
                 'td#oldest-pages',
                 'td#recent-additions',
-                '*:lang('+self.lang+')']), callback='parse_word_page', follow=True),
+                '*:not(.p-form-of) > *:lang('+self.lang+'):not(.p-form-of)']), callback='parse_word_page', follow=True),
         )
         super(dictSpider, self)._compile_rules()
 
