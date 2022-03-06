@@ -20,11 +20,13 @@ class dictSpider(CrawlSpider):
                 'div.mw-parser-output > ul a[title^=\'Category:\']'],
             deny='Category:Terms_derived_from_'+languages_settings.languages[self.lang]['language'])),
         Rule(link_extractor=LinkExtractor(
+            restrict_xpaths=[
+            '//*[@lang = \''+self.lang+'\' and (not(ancestor::*[@class=\'p-form-of\']) and not(ancestor::*[@class=\'form-of\']) and not(ancestor::*[@class=\'NavFrame\']))]'
+            ],
             restrict_css=[
                 'div.mw-category-group',
                 'td#oldest-pages',
-                'td#recent-additions',
-                '*:not(.p-form-of) > *:lang('+self.lang+'):not(.p-form-of)']), callback='parse_word_page', follow=True),
+                'td#recent-additions']), callback='parse_word_page', follow=True),
         )
         super(dictSpider, self)._compile_rules()
 
@@ -67,7 +69,7 @@ class dictSpider(CrawlSpider):
                         continue
                     
                     def_ol_item_loader = ItemLoader(item=DictBotIntermediateItem(), selector=def_ol)
-                    def_ol_item_loader.add_css("defs", "ol>li") # definitions = format: ["definition",["synonyms"],["antonym"],["extras(mostly examples)"]]
+                    def_ol_item_loader.add_css("defs", "ol>li") 
 
                     final_item_loader.add_value("word", word_p_item_loader.get_output_value("word")) 
                     final_item_loader.add_value("gender", word_p_item_loader.get_output_value("gender"))
