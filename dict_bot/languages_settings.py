@@ -35,10 +35,4 @@ languages = {
                 "Adverb", "Conjunction", "Numeral", "Interjection", "Symbol", "Suffix", "Prefix"],
             'start-url-crawler': ['https://en.wiktionary.org/wiki/Category:Russian_language'], 
         },
-    'pl': {'language': "Polish",
-            'word_classes': ["Phrase", "Noun", "Verb", "Adjective", "Pronoun", "Article",
-                "Contraction", "Preposition", "Proverb", "Proper noun",
-                "Adverb", "Conjunction", "Numeral", "Interjection", "Symbol", "Suffix", "Prefix"],
-            'start-url-crawler': ['https://en.wiktionary.org/wiki/Category:Polish_language'], 
-        },
     }

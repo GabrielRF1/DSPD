@@ -10,7 +10,18 @@ from scrapy.exceptions import DropItem
 import sqlite3
 
 lua_error = "Wiktionary:Lua memory errors"
+form_of = "form of"
+conjulgations = [
+    "plural of", "indicative of", "imperative of", "subjunctive of",
+    "indicative of", "participle of", "singular of",
+    ]
+compound_of_the = "compound of the"
 add_translation_error = "rfdef"
+
+def is_in_conjulgation_list(definition):
+        for conjulgation in conjulgations:
+                if conjulgation in definition:
+                    return True
 
 class DictBotPipeline:
     def process_item(self, item, spider):
@@ -21,6 +32,8 @@ class DictBotPipeline:
         for defs in item["defs"]:
             if lua_error in defs["_def"] or add_translation_error in defs["_def"]:
                 raise DropItem('invalid definition found')
+            if compound_of_the in defs["_def"] or form_of in defs["_def"] or is_in_conjulgation_list(defs["_def"]):
+                raise DropItem('conjulgated item found')
         # ------------------ ------------------ ------------------
         # ------ removing possible non-extras or duplicates from extras --------
         for defs in item["defs"]:
