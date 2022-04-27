@@ -13,12 +13,21 @@ class dictSpider(CrawlSpider):
     def __init__(self, *a, **kw):
         super(dictSpider, self).__init__(*a, **kw)
         self.start_urls = languages_settings.languages[self.lang]['start-url-crawler']
+        cur_lang = languages_settings.languages[self.lang]['language']
+        other_langs = languages.languages.copy()
+        other_langs.remove(cur_lang)
+        other_langs = [(lang+'_').replace(' ','_') for lang in other_langs]
+        deny_rules = ['Category:Terms_derived_from_'+languages_settings.languages[self.lang]['language'],'Grammar']
+        deny_rules.extend(other_langs)
         self.rules = (
         Rule(link_extractor=LinkExtractor(
             restrict_css=[
                 'div.CategoryTreeItem',
-                'div.mw-parser-output > ul a[title^=\'Category:\']'],
-            deny='Category:Terms_derived_from_'+languages_settings.languages[self.lang]['language'])),
+                'div.mw-parser-output > ul a[title^=\'Category:\']'
+            ],
+            deny=deny_rules
+            )
+        ),
         Rule(link_extractor=LinkExtractor(
             restrict_xpaths=[
             '//*[@lang = \''+self.lang+'\' and (not(ancestor::*[@class=\'p-form-of\']) and not(ancestor::*[@class=\'form-of\']) and not(ancestor::*[@class=\'NavFrame\']))]'
