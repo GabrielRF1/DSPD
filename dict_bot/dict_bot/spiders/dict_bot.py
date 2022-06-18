@@ -8,16 +8,17 @@ import languages_settings
 
 class dictSpider(CrawlSpider):
     name = "dict_bot"
-    allowed_domains = ["en.wiktionary.org"]
 
     def __init__(self, *a, **kw):
         super(dictSpider, self).__init__(*a, **kw)
-        self.start_urls = languages_settings.languages[self.lang]['start-url-crawler']
-        cur_lang = languages_settings.languages[self.lang]['language']
-        other_langs = languages.languages.copy()
+        self.allowed_domains = [self.base_lang+".wiktionary.org"]
+        language = languages_settings.lang_base_to_language[self.base_lang]
+        self.start_urls = language[self.lang]['start-url-crawler']
+        cur_lang = language[self.lang]['language']
+        other_langs = languages.select_languages_list[self.base_lang].copy()
         other_langs.remove(cur_lang)
         other_langs = [(lang+'_').replace(' ','_') for lang in other_langs]
-        deny_rules = ['Category:Terms_derived_from_'+languages_settings.languages[self.lang]['language'],'Grammar']
+        deny_rules = ['Category:Terms_derived_from_'+language[self.lang]['language'],'Grammar']
         deny_rules.extend(other_langs)
         self.rules = (
         Rule(link_extractor=LinkExtractor(
@@ -41,12 +42,13 @@ class dictSpider(CrawlSpider):
 
     def parse_word_page(self, response):
         spans = response.css("span.mw-headline")
+        language = languages_settings.lang_base_to_language[self.base_lang]
         lang_found = False
         alt_forms = []
         for span in spans:
-            headline = span.css("::text").get()
-            if headline in languages.languages:
-                if headline == languages_settings.languages[self.lang]['language']:
+            headline = span.attrib['id']
+            if headline in languages.select_languages_list[self.base_lang]:
+                if headline == language[self.lang]['language']:
                     lang_found = True
                 else:
                     lang_found = False
@@ -61,7 +63,7 @@ class dictSpider(CrawlSpider):
                     alt_ul_item_loader.add_css("alt", "li")
                     alt_forms = alt_ul_item_loader.get_output_value("alt")
 
-                if headline in languages_settings.languages[self.lang]['word_classes']:  # Word class
+                if headline in language[self.lang]['word_classes']:  # Word class
                     try:
                         word_p = response.xpath("//p[preceding-sibling::*[./span[@id=\""
                                                 + id + "\"]]]")[0]

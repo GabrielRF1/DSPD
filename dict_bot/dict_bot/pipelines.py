@@ -86,7 +86,7 @@ class DictBotSQLitePipeline:
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Antonym(
         ant_id INTEGER PRIMARY KEY,
         def_id INTEGER NOT NULL,
-        extension TEXT NOT NULL,
+        ant TEXT NOT NULL,
         FOREIGN KEY(def_id) REFERENCES Definition(def_id)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Extra(
