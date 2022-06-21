@@ -13,13 +13,16 @@ class dictSpider(CrawlSpider):
         super(dictSpider, self).__init__(*a, **kw)
         self.allowed_domains = [self.base_lang+".wiktionary.org"]
         language = languages_settings.lang_base_to_language[self.base_lang]
+
         self.start_urls = language[self.lang]['start-url-crawler']
+        
         cur_lang = language[self.lang]['language']
         other_langs = languages.select_languages_list[self.base_lang].copy()
         other_langs.remove(cur_lang)
         other_langs = [(lang+'_').replace(' ','_') for lang in other_langs]
         deny_rules = ['Category:Terms_derived_from_'+language[self.lang]['language'],'Grammar']
         deny_rules.extend(other_langs)
+
         self.rules = (
         Rule(link_extractor=LinkExtractor(
             restrict_css=[
@@ -46,12 +49,14 @@ class dictSpider(CrawlSpider):
         lang_found = False
         alt_forms = []
         for span in spans:
-            headline = span.attrib['id']
-            if headline in languages.select_languages_list[self.base_lang]:
+            headline = span.attrib['id']                
+            if str(headline).lower() in [langu.lower() for langu in languages.select_languages_list[self.base_lang]]:
                 if headline == language[self.lang]['language']:
                     lang_found = True
                 else:
                     lang_found = False
+            else: 
+                headline = span.css("::text").get()
             if lang_found:
                 final_item_loader = ItemLoader(item=DictBotFinalItem(), selector=span)
                 id = span.attrib["id"]
