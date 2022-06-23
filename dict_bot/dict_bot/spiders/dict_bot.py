@@ -33,9 +33,9 @@ class dictSpider(CrawlSpider):
             )
         ),
         Rule(link_extractor=LinkExtractor(
-            restrict_xpaths=[
-            '//*[@lang = \''+self.lang+'\' and (not(ancestor::*[@class=\'p-form-of\']) and not(ancestor::*[@class=\'form-of\']) and not(ancestor::*[@class=\'NavFrame\']))]'
-            ],
+            # restrict_xpaths=[
+            # '//*[@lang = \''+self.lang+'\' and (not(ancestor::*[@class=\'p-form-of\']) and not(ancestor::*[@class=\'form-of\']) and not(ancestor::*[@class=\'NavFrame\']))]'
+            # ],
             restrict_css=[
                 'div.mw-category-group',
                 'td#oldest-pages',

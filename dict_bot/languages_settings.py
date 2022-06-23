@@ -59,18 +59,8 @@ languages_pt = {
            'start-url-crawler': ['https://pt.wiktionary.org/wiki/Categoria:Espanhol'],
            },
 }
-# languages_es = {
-#     'es': {'language': "Español",
-#            'word_classes': ["Expresión", "Sustantivo femenino", "Sustantivo masculino", "Substantivo", "Verbo", "Adjetivo",
-#                             "Pronombre", "Artículo", "Contracción", "Preposición", "Proverbio", "Pronombre propio", "Frase",
-#                             "Adverbio", "Conjunción", "Numeral", "Interjección", "Símbolo", "Sufijo", "Prefijo",
-#                             "Frase nominal"],
-#            'start-url-crawler': ['https://es.wiktionary.org/wiki/Categor%C3%ADa:ES:Conjunciones'],
-#            },
-# }
 
 lang_base_to_language = {
     'en': languages,
     'pt': languages_pt,
-#     'es': languages_es,
 }

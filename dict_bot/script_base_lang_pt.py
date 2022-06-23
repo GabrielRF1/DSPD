@@ -1,6 +1,6 @@
 import sqlite3
 
-con = sqlite3.connect("dict_bot\\es_ptDict\\es_pt.db")
+con = sqlite3.connect("dict_bot\\en_ptDict\\en_pt.db")
 cur = con.cursor()
 cur.execute("""
             SELECT word_id, word FROM Word WHERE word LIKE '%.%' or word LIKE '%·%';
