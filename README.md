@@ -10,3 +10,6 @@ To run the scraper, execute the command above.
 Where, lang is the iso two letter code for the language you want to extract data. base_lang is the language the target language will be translated to (e.g. spanish to english, lang would be es and en would be base_lang). db_name is used to specify in which directory the database can be found (ou should be created). JOBDIR is for specifying where the crawling progress will be saved
 
 You may also output the dictionary into a json file through the -O option.
+
+## Example
+    scrapy crawl dict_bot -O es_enDict/es_enDict19.json -a db_name="es_enDict/es_enDict" -a lang=es -a base_lang=en -s JOBDIR=crawls/dictBot_es_en-1
