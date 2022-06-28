@@ -20,7 +20,7 @@ class dictSpider(CrawlSpider):
         other_langs = languages.select_languages_list[self.base_lang].copy()
         other_langs.remove(cur_lang)
         other_langs = [(lang+'_').replace(' ','_') for lang in other_langs]
-        deny_rules = ['Category:Terms_derived_from_'+language[self.lang]['language'],'Grammar', 'Category:te:']
+        deny_rules = ['Category:Terms_derived_from_'+language[self.lang]['language'],'Grammar']
         deny_rules.extend(other_langs)
 
         self.rules = (
