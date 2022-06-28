@@ -1,23 +1,12 @@
-# DSPD (to be renamed, as I forgot what this was supposed to mean)
+# DSPD
 ## Installing the dependencies
     pip install scrapy
 Run the above mentioned command to install scrapy
 
 ## Running the scraper
-    scrapy crawl dict_bot -O output_name.json -a db_name="db_name" -a lang=<lang> -a index="<index>"
+    scrapy crawl dict_bot -O <output_dir>.json -a db_name="<db_dir>" -a lang=<iso-2letter-langcode> -a base_lang=<iso-2letter-langcode> -s JOBDIR=<job_dir>
 To run the scraper, execute the command above.
 
-You have to specify, via the -a options, the name of the SQlite database in which the data will be stored into, the language you will be building the dictionary, and an index.
-To choose a language, use its two-letter code, you can check some of the codes here: https://www.sitepoint.com/iso-2-letter-language-codes/.
-Also, check the language_settings.py file to see if the language is supported. If not, feel free to add more languages on there.
-
-the index is used to choose which of the links list will be fed to the scraper; check language_settings.py for the lists.
+Where, lang is the iso two letter code for the language you want to extract data. base_lang is the language the target language will be translated to (e.g. spanish to english, lang would be es and en would be base_lang). db_name is used to specify in which directory the database can be found (ou should be created). JOBDIR is for specifying where the crawling progress will be saved
 
 You may also output the dictionary into a json file through the -O option.
-
-## Warnings
-Be aware that you'll be sending a lot of requests to Wiktionary, so don't remove the delay option from scrapy's setting file, unless you want to DoS their site, which you shouldn't! 4 seconds might be a bit too conservative, so feel free to lower it a bit, but don't overdo it!
-
-I also recommend keeping the Autothrottle option as it is, but do whatever as long you don't turn it off.
-
-Lastly, keep ROBOTSTXT_OBEY on. if their site doesn't want bots running around specific pages, respect it, please.

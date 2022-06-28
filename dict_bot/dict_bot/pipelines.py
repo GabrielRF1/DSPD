@@ -10,6 +10,7 @@ from scrapy.exceptions import DropItem
 import sqlite3
 
 lua_error = "Wiktionary:Lua memory errors"
+plural_of = "plural of"
 add_translation_error = "rfdef"
 
 class DictBotPipeline:
@@ -21,6 +22,8 @@ class DictBotPipeline:
         for defs in item["defs"]:
             if lua_error in defs["_def"] or add_translation_error in defs["_def"]:
                 raise DropItem('invalid definition found')
+            if plural_of in defs["_def"]:
+                raise DropItem('plural of an item found')
         # ------------------ ------------------ ------------------
         # ------ removing possible non-extras or duplicates from extras --------
         for defs in item["defs"]:
@@ -83,7 +86,7 @@ class DictBotSQLitePipeline:
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Antonym(
         ant_id INTEGER PRIMARY KEY,
         def_id INTEGER NOT NULL,
-        extension TEXT NOT NULL,
+        ant TEXT NOT NULL,
         FOREIGN KEY(def_id) REFERENCES Definition(def_id)
         )""")
         self.cur.execute("""CREATE TABLE IF NOT EXISTS Extra(

@@ -1,70 +1,62 @@
 import scrapy
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 from dict_bot.items import DictBotFinalItem, DictBotIntermediateItem
 from scrapy.loader import ItemLoader
 import languages
 import languages_settings
-from urllib.parse import urljoin
-import re
 
-links_noise = ["*", "►"]
-
-class dictSpider(scrapy.Spider):
+class dictSpider(CrawlSpider):
     name = "dict_bot"
 
+    def __init__(self, *a, **kw):
+        super(dictSpider, self).__init__(*a, **kw)
+        self.allowed_domains = [self.base_lang+".wiktionary.org"]
+        language = languages_settings.lang_base_to_language[self.base_lang]
 
-    def start_requests(self):
-        start_urls = languages_settings.languages[self.lang]['start-urls_'+self.index][::-1]
-        for url in start_urls:
-            yield scrapy.Request(url=url, callback = self.parse)
+        self.start_urls = language[self.lang]['start-url-crawler']
+        
+        cur_lang = language[self.lang]['language']
+        other_langs = languages.select_languages_list[self.base_lang].copy()
+        other_langs.remove(cur_lang)
+        other_langs = [(lang+'_').replace(' ','_') for lang in other_langs]
+        deny_rules = ['Category:Terms_derived_from_'+language[self.lang]['language'],'Grammar']
+        deny_rules.extend(other_langs)
 
-    # start_urls = [
-    #     # "https://en.wiktionary.org/wiki/gente",
-    #     # "https://en.wiktionary.org/wiki/desarraigar",
-    #     # "https://en.wiktionary.org/wiki/a_cavalo_dado_n%C3%A3o_se_olha_os_dentes",
-    #     # "https://en.wiktionary.org/wiki/%C3%A2nus",
-    #     # "https://en.wiktionary.org/wiki/faca",
-    #     # "https://en.wiktionary.org/wiki/a",
-    #     # "https://en.wiktionary.org/wiki/gênio",
-    #     # "https://en.wiktionary.org/wiki/grilh%C3%B5es",
-    #     # "https://en.wiktionary.org/wiki/matar",
-    #     # "https://en.wiktionary.org/wiki/cobre",
-    #     # "https://en.wiktionary.org/wiki/besta",
-    #     # "https://en.wiktionary.org/wiki/cesta",
-    #     # "https://en.wiktionary.org/wiki/dar",
-    #     # "https://en.wiktionary.org/wiki/altru%C3%ADsta"
-    # ]
-
-    def parse(self, response):
-        word_block = response.css("div.index").css("li")
-        urls = set()
-        for word in word_block:
-            links = word.css("a")
-            for link in links:
-                if link.css("::text").get() in links_noise or "/w/" in link.attrib["href"]:
-                    pass
-                else:
-                    try:
-                        url_lang_regex = re.compile("(\w\w)\.wiktionary")
-                        url_lang =  re.findall(url_lang_regex, link.attrib["href"])[0]
-                        if url_lang != 'en':
-                            continue
-                    except:
-                        pass
-                    urls.add(urljoin("https://en.wiktionary.org", link.attrib["href"]))
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_word_page)
+        self.rules = (
+        Rule(link_extractor=LinkExtractor(
+            restrict_css=[
+                'div.CategoryTreeItem',
+                'div.mw-parser-output > ul a[title^=\'Category:\']'
+            ],
+            deny=deny_rules
+            )
+        ),
+        Rule(link_extractor=LinkExtractor(
+            # restrict_xpaths=[
+            # '//*[@lang = \''+self.lang+'\' and (not(ancestor::*[@class=\'p-form-of\']) and not(ancestor::*[@class=\'form-of\']) and not(ancestor::*[@class=\'NavFrame\']))]'
+            # ],
+            restrict_css=[
+                'div.mw-category-group',
+                'td#oldest-pages',
+                'td#recent-additions']), callback='parse_word_page', follow=True),
+        )
+        super(dictSpider, self)._compile_rules()
 
     def parse_word_page(self, response):
         spans = response.css("span.mw-headline")
+        language = languages_settings.lang_base_to_language[self.base_lang]
         lang_found = False
         alt_forms = []
         for span in spans:
-            headline = span.css("::text").get()
-            if headline in languages.languages:
-                if headline == languages_settings.languages[self.lang]['language']:
+            headline = span.attrib['id']                
+            if str(headline).lower() in [langu.lower() for langu in languages.select_languages_list[self.base_lang]]:
+                if headline == language[self.lang]['language']:
                     lang_found = True
                 else:
                     lang_found = False
+            else: 
+                headline = span.css("::text").get()
             if lang_found:
                 final_item_loader = ItemLoader(item=DictBotFinalItem(), selector=span)
                 id = span.attrib["id"]
@@ -76,7 +68,7 @@ class dictSpider(scrapy.Spider):
                     alt_ul_item_loader.add_css("alt", "li")
                     alt_forms = alt_ul_item_loader.get_output_value("alt")
 
-                if headline in languages_settings.languages[self.lang]['word_classes']:  # Word class
+                if headline in language[self.lang]['word_classes']:  # Word class
                     try:
                         word_p = response.xpath("//p[preceding-sibling::*[./span[@id=\""
                                                 + id + "\"]]]")[0]
@@ -93,7 +85,7 @@ class dictSpider(scrapy.Spider):
                         continue
                     
                     def_ol_item_loader = ItemLoader(item=DictBotIntermediateItem(), selector=def_ol)
-                    def_ol_item_loader.add_css("defs", "ol>li") # definitions = format: ["definition",["synonyms"],["antonym"],["extras(mostly examples)"]]
+                    def_ol_item_loader.add_css("defs", "ol>li") 
 
                     final_item_loader.add_value("word", word_p_item_loader.get_output_value("word")) 
                     final_item_loader.add_value("gender", word_p_item_loader.get_output_value("gender"))
